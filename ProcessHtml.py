@@ -1,6 +1,7 @@
 import re
 import os
 import time
+import random
 
 def extractPaperUrlFromFolder(inFolder, resFolder = 'c:\\tmp\\try3\\'):
 
@@ -43,27 +44,71 @@ def extractPaperUrl(queryHtmlFile, resFile = 'c:\\tmp\\urllist.txt'):
     f2.close()
 
 
-def extractPaperData(inFileName):
+def extractPublicationDataFromFolder(folderName = 'c:\\LibGraph\\Blocks1317\\', resFileName = 'c:\\LibGraph\\orgdata.txt'):
 
+    resFile = open(resFileName,'w')
+
+    fileList = os.listdir(folderName)
+    for fileName in fileList :
+        [orgList, resTxt] = extractPublicationData(os.path.join(folderName, fileName))
+        resFile.write(resTxt)
+
+    resFile.close()
+
+def extractPublicationData(inFileName):
+    print '\nExtracting from', inFileName
     f = open(inFileName, "r")
-    data = ' '.join(f1.readlines())
-    f1.close()
+    data = ' '.join(f.readlines())
+    f.close()
 
+    orgPattern = re.compile("orgsid=(\d+)")
     orgs = orgPattern.findall(data)
     orgs = list(set(orgs)) # remove dublicates
     size = len(orgs)
 
     if size == 0 :
-        print 'NO ORGANIZATIONS FOUND'
-        return ''
+        resTxt = 'NO ORGANIZATIONS FOUND'
+        resList = []
     elif size == 1:
-        return ''
+        resTxt = 'Single:\t' + str(orgs[0])
+        resList = orgs[0]
     elif size == 2 :
-        return [orgs]
+        resTxt = 'Pairs:\t' + str(orgs[0]) + ' -> ' + str(orgs[1])
+        resList = [orgs]
     else :
-        res = []
+        resTxt = 'Pairs:'
+        resList = []
         for i in range(size - 1) :
             for j in range (size - 1 - i) :
-                res = res.append([orgs[i], orgs[j+i+1]])
-        return res
-    print 'Data extracted from', inFileName
+                print resList, '- appending', i, j+i+1, str([orgs[i], orgs[j+i+1]])
+                pair = [orgs[i], orgs[j+i+1]]
+                resTxt = resTxt + '\t' + str(pair[0]) + ' -> ' + str(pair[1])
+                if len(resList) == 0 :
+                    resList = [pair]
+                else :
+                    resList = resList + [pair]
+    resTxt = inFileName + '\t' + resTxt + '\n'
+    print resTxt
+    print 'Data extracted from', inFileName, resList
+    return [resList, resTxt]
+
+
+def splitFile():
+    inFileName = 'c:\\LibGraph\\urllist_0.txt'
+    f_in = open(inFileName,'r')
+    dataList = f_in.readlines()
+    random.shuffle(dataList)
+    k = 230
+    i = 0
+    n = 0
+    f_out = open('c:\\LibGraph\\blocks\\utrlist_block_' + str(n) +'.txt', 'w')
+    for line in dataList :
+        f_out.write(line)
+        i += 1
+        if i == k :
+            i = 0
+            n += 1
+            f_out.close()
+            f_out = open('c:\\LibGraph\\blocks\\utrlist_block_' + str(n) +'.txt', 'w')
+
+

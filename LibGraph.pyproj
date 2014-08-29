@@ -22,9 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BuildGraph.py" />
     <Compile Include="LibGraph.py" />
     <Compile Include="ProcessHtml.py" />
-    <Compile Include="ProcessPages.py" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
 </Project>
